@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simple To-Do List</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body { background: linear-gradient(rgba(18, 18, 18, 0.85), rgba(18, 18, 18, 0.9)),url("{{ url_for('static', filename='img/wallie.jpg') }}") no-repeat center center/cover;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 500px;
+            background-color: rgb(255, 255, 255);
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            height: 80vh;
+        }
+
+        .header {
+            background: linear-gradient(to right, #23083f, #0e3477);
+            color: white;
+            padding: 25px 20px;
+            text-align: center;
+            flex-shrink: 0;
+        }
+
+        .header h1 {
+            font-size: 28px;
+            margin-bottom: 5px;
+        }
+
+        .header p {
+            opacity: 0.9;
+            font-size: 14px;
+        }
+
+        .input-section {
+            padding: 20px;
+            display: flex;
+            border-bottom: 1px solid #eee;
+            flex-shrink: 0;
+        }
+
+        .task-input {
+            flex: 1;
+            padding: 12px 15px;
+            border: 2px solid #e1e1e1;
+            border-radius: 6px;
+            font-size: 16px;
+            outline: none;
+            transition: border-color 0.3s;
+        }
+
+        .task-input:focus {
+            border-color: #6a11cb;
+        }
+
+        .add-btn {
+            background: linear-gradient(to right, #6a11cb, #2575fc);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            padding: 12px 20px;
+            margin-left: 10px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .add-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(106, 17, 203, 0.3);
+        }
+
+        .tasks-section {
+            padding: 20px;
+            flex: 1;
+            overflow-y: auto;
+            max-height: none;
+        }
+
+        .task-item {
+            display: flex;
+            align-items: center;
+            padding: 15px;
+            margin-bottom: 12px;
+            background-color: #f9f9f9;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+            transition: all 0.3s ease;
+        }
+
+        .task-item.completed {
+            background-color: #f0f0f0;
+            opacity: 0.7;
+        }
+
+        .task-item:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .task-checkbox {
+            margin-right: 12px;
+            width: 20px;
+            height: 20px;
+            cursor: pointer;
+        }
+
+        .task-text {
+            flex: 1;
+            font-size: 16px;
+            transition: all 0.3s ease;
+        }
+
+        .task-item.completed .task-text {
+            text-decoration: line-through;
+            color: #888;
+        }
+
+        .delete-btn {
+            background-color: #ff4757;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            padding: 6px 10px;
+            cursor: pointer;
+            font-size: 14px;
+            text-decoration: none;
+            display: inline-block;
+            transition: background-color 0.2s;
+            margin-left: 8px;
+        }
+
+        .delete-btn:hover {
+            background-color: #ff3742;
+        }
+
+        .toggle-btn {
+            background-color: #2ed573;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            padding: 6px 10px;
+            cursor: pointer;
+            font-size: 14px;
+            text-decoration: none;
+            display: inline-block;
+            transition: background-color 0.2s;
+        }
+
+        .toggle-btn:hover {
+            background-color: #25c75d;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 30px 20px;
+            color: #888;
+        }
+
+        .stats {
+            padding: 15px 20px;
+            background-color: #f5f5f5;
+            display: flex;
+            justify-content: space-between;
+            border-top: 1px solid #eee;
+            font-size: 14px;
+            color: #666;
+            flex-shrink: 0;
+        }
+
+        .completed-count {
+            color: #2ed573;
+            font-weight: 600;
+        }
+
+        .tasks-section::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .tasks-section::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 4px;
+        }
+
+        .tasks-section::-webkit-scrollbar-thumb {
+            background: #c1c1c1;
+            border-radius: 4px;
+        }
+
+        .tasks-section::-webkit-scrollbar-thumb:hover {
+            background: #a8a8a8;
+        }
+
+        @media (max-width: 480px) {
+            .container {
+                max-width: 100%;
+                height: 90vh;
+            }
+            
+            .input-section {
+                flex-direction: column;
+            }
+            
+            .add-btn {
+                margin-left: 0;
+                margin-top: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>FLASK + DOCKER APP</h1>
+            <p>Build using Flask and Docker</p>
+        </div>
+        
+        <form action="/" method="POST" autocomplete="off">
+            <div class="input-section">
+                <input type="text" id="task" name="task" class="task-input" placeholder="Add a new task..." required>
+                <button type="submit" class="add-btn">Add Task</button>
+            </div>
+        </form>
+        
+        <div class="tasks-section">
+
+            {% if tasks %}
+                {% for data in tasks |reverse%}
+
+                <div class="task-item {% if data.iscompleted %}completed{% endif %}">
+                    <span class="task-text">{{ data.task }}</span>
+
+                    <a href="/toggle/{{ data.id }}" class="toggle-btn">
+                        {% if data.iscompleted %}Undo{% else %}Complete{% endif %}
+                    </a>
+
+                    <a href="/delete/{{ data.id }}" class="delete-btn">Delete</a>
+                </div>
+
+                {% endfor %}
+            {% else %}
+
+                <div class="empty-state">
+                    <p>No tasks yet. Add a task to get started!</p>
+                </div>
+
+            {% endif %}
+
+        </div>
+        
+        <div class="stats">
+
+            {% if tasks %}
+               
+            <span>Total: {{ tasks|length }} task{{ '' if tasks|length == 1 else 's' }}</span>
+               
+            <span class="completed-count">
+                    Completed: {{ tasks|selectattr("iscompleted")|list|length }}
+                </span>
+            
+                {% else %}
+                <span>No tasks available</span>
+            
+                {% endif %}
+        
+            </div>
+    </div>
+</body>
+</html>
